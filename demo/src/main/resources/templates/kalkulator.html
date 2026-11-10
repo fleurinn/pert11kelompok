@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kalkulator Ceria - Spring Boot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { 
+            background: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%); 
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+        
+        .calculator-card {
+            background: #ffffff; 
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
+            padding: 40px; 
+            margin-top: 50px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .math-decor {
+            position: absolute;
+            font-weight: 800;
+            color: rgba(142, 197, 252, 0.2);
+            z-index: -1;
+            user-select: none;
+        }
+        .decor-1 { top: -10px; left: 20px; font-size: 100px; }
+        .decor-2 { bottom: 20px; right: 30px; font-size: 80px; }
+        .decor-3 { top: 40%; left: 50%; font-size: 120px; transform: translate(-50%, -50%); opacity: 0.05; }
+
+        .math-input {
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            height: 75px;
+            font-size: 1.8rem;
+            text-align: center;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        .opt-select {
+            background-color: #fef08a;
+            border: 3px solid #fde047;
+            color: #a16207;
+            font-size: 1.8rem;
+            font-weight: 800;
+            border-radius: 15px;
+            height: 75px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .result-box {
+            background-color: #dcfce7;
+            border: 3px dashed #4ade80;
+            color: #166534;
+            font-weight: 800;
+        }
+
+        .equal-symbol {
+            font-size: 2.5rem;
+            color: #ec4899; 
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .btn-calc {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            box-shadow: 0 8px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .table-custom {
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+        .table-custom thead th {
+            border: none;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .table-custom tbody tr {
+            background: #f8fafc;
+            border-radius: 15px;
+        }
+        .table-custom tbody td {
+            border: none;
+            vertical-align: middle;
+            padding: 15px;
+        }
+        
+        .badge-operator {
+            background-color: #fde047;
+            color: #a16207;
+            font-size: 1.1rem;
+            padding: 8px 15px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" style="max-width: 950px;">
+        <div class="calculator-card">
+            
+            <div class="math-decor decor-1"><i class="fa-solid fa-plus"></i></div>
+            <div class="math-decor decor-2"><i class="fa-solid fa-divide"></i></div>
+            <div class="math-decor decor-3"><i class="fa-solid fa-square-root-variable"></i></div>
+            
+            <div class="text-center mb-5">
+                <h1 class="fw-bold" style="color: #4f46e5;">
+                    <i class="fa-solid fa-calculator me-2"></i> Math Explorer
+                </h1>
+                <p class="text-muted fs-5">Kalkulator Pintar dengan Riwayat Database</p>
+            </div>
+
+            <form th:action="@{/kalkulator/simpan}" th:object="${operasi}" method="post">
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="row g-3 align-items-center mb-5 justify-content-center">
+                    <div class="col-md-3 col-sm-12">
+                        <label class="form-label fw-bold text-muted ps-2">Angka Pertama</label>
+                        <input type="number" step="any" th:field="*{bil1}" class="form-control math-input" placeholder="0" required />
+                    </div>
+                    
+                    <div class="col-md-2 col-sm-12">
+                        <label class="form-label fw-bold text-muted ps-2">Operator</label>
+                        <select th:field="*{opt}" class="form-select opt-select">
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                            <option value="*">x</option>
+                            <option value="/">÷</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3 col-sm-12">
+                        <label class="form-label fw-bold text-muted ps-2">Angka Kedua</label>
+                        <input type="number" step="any" th:field="*{bil2}" class="form-control math-input" placeholder="0" required />
+                    </div>
+                    
+                    <div class="col-md-1 col-sm-12 text-center">
+                        <label class="form-label d-none d-md-block">&nbsp;</label>
+                        <div class="equal-symbol">=</div>
+                    </div>
+                    
+                    <div class="col-md-3 col-sm-12">
+                        <label class="form-label fw-bold" style="color: #166534;">Hasil (Result)</label>
+                        <input type="text" class="form-control math-input result-box" readonly 
+                               th:value="${operasi.result}" 
+                               placeholder="?" />
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn-calc">Hitung Sekarang!</button>
+                    <a th:href="@{/kalkulator}" class="btn btn-outline-secondary ms-3 rounded-pill fw-bold" style="padding: 13px 30px; font-size: 1.1rem;">
+                        Reset
+                    </a>
+                </div>
+            </form>
+
+            <hr class="my-5" style="border-top: 2px dashed #cbd5e1;">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold" style="color: #334155;">Riwayat Operasi</h4>
+                <span class="badge bg-primary rounded-pill px-3 py-2">Data dari Database</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-custom text-center w-100">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Angka 1</th>
+                            <th>Aksi</th>
+                            <th>Angka 2</th>
+                            <th>Hasil Terhitung</th>
+                            <th>Manajemen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="op : ${listOperasi}">
+                            <td class="text-muted fw-bold" th:text="'#' + ${op.id}"></td>
+                            <td class="fw-bold fs-5" style="color: #334155;" th:text="${op.bil1}"></td>
+                            
+                            <td>
+                                <span class="badge-operator fw-bold" th:text="${op.opt}"></span>
+                            </td>
+                            
+                            <td class="fw-bold fs-5" style="color: #334155;" th:text="${op.bil2}"></td>
+                            <td class="fw-bold fs-5 text-success" th:text="${op.result}"></td>
+                            
+                            <td>
+                                <a th:href="@{/kalkulator(loadId=${op.id})}" class="btn btn-sm btn-warning fw-bold text-dark rounded-pill px-3 me-1">
+                                    Edit
+                                </a>
+                                <a th:href="@{/kalkulator/hapus/{id}(id=${op.id})}" class="btn btn-sm btn-danger fw-bold rounded-pill px-3" onclick="return confirm('Hapus riwayat ini?');">
+                                    Hapus
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
